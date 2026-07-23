@@ -1,0 +1,6 @@
+dbt-core==1.7.14
+dbt-postgres==1.7.14
+psycopg2-binary==2.9.9
+pandas==2.1.4
+requests==2.31.0
+protobuf>=4.25.3,<5

@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: fct_flights
+    columns:
+      - name: fl_date
+        tests: [not_null]
+      - name: carrier_code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_carrier')
+              field: carrier_code
+      - name: origin_airport
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_airport')
+              field: iata_code
+      - name: dest_airport
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_airport')
+              field: iata_code

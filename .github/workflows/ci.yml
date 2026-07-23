@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: skyops
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d skyops"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Postgres client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint
+        run: ruff check ingestion airflow/dags airflow/plugins tests
+
+      - name: Apply database DDL
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d skyops -v ON_ERROR_STOP=1 -f sql/init.sql
+          psql -h localhost -U postgres -d skyops -v ON_ERROR_STOP=1 -f sql/raw_schema.sql
+          psql -h localhost -U postgres -d skyops -v ON_ERROR_STOP=1 -f sql/analytics_schema.sql
+
+      - name: Load CI fixture into raw
+        env:
+          PGPASSWORD: postgres
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5432"
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: skyops
+          PYTHONPATH: ${{ github.workspace }}
+        run: python -m ingestion.load_ci_fixture
+
+      - name: dbt deps, seed, build
+        working-directory: dbt
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5432"
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: skyops
+        run: |
+          dbt deps --profiles-dir .
+          dbt seed --target ci --profiles-dir .
+          dbt build --target ci --profiles-dir .
+
+      - name: Pytest
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: pytest tests/ -q

@@ -1,0 +1,37 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dbt/target/
+dbt/dbt_packages/
+dbt/package-lock.yml
+dbt/logs/
+dbt/.user.yml
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Large raw downloads (keep .gitkeep)
+data/raw/bts/**
+!data/raw/bts/.gitkeep
+data/raw/weather/**
+!data/raw/weather/.gitkeep
+
+# AI / agent tooling (never commit)
+.cursor/
+.claude/
+.aider*
+.specify/
+AGENTS.md
+CLAUDE.md
+
+# Personal resume lives outside this portfolio repo
+Saurav_Patel_Resume.tex
+*.aux
+*.out
+*.synctex.gz

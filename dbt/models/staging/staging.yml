@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: stg_flights
+    columns:
+      - name: fl_date
+        tests: [not_null]
+      - name: origin
+        tests: [not_null]
+      - name: dest
+        tests: [not_null]
+      - name: op_unique_carrier
+        tests: [not_null]
+  - name: stg_weather_daily
+    columns:
+      - name: airport_iata
+        tests: [not_null]
+      - name: weather_date
+        tests: [not_null]
+  - name: stg_airports
+    columns:
+      - name: iata_code
+        tests: [unique, not_null]

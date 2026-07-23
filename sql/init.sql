@@ -1,0 +1,7 @@
+CREATE SCHEMA IF NOT EXISTS raw;
+CREATE SCHEMA IF NOT EXISTS staging;
+CREATE SCHEMA IF NOT EXISTS analytics;
+
+GRANT ALL ON SCHEMA raw TO postgres;
+GRANT ALL ON SCHEMA staging TO postgres;
+GRANT ALL ON SCHEMA analytics TO postgres;

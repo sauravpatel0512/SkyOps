@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: skyops_raw
+    schema: raw
+    tables:
+      - name: flights
+      - name: weather_daily
+      - name: airports

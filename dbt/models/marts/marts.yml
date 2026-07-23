@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: mart_carrier_reliability
+    columns:
+      - name: carrier_code
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+      - name: flight_count
+        tests: [not_null]
+  - name: mart_airport_ops
+    columns:
+      - name: airport_iata
+        tests: [not_null]
+      - name: month_start
+        tests: [not_null]
+  - name: mart_weather_impact
+    columns:
+      - name: weather_bucket
+        tests: [not_null]
+  - name: mart_route_performance
+    columns:
+      - name: origin_airport
+        tests: [not_null]
+      - name: dest_airport
+        tests: [not_null]

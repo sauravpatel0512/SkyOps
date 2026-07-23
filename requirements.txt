@@ -1,0 +1,9 @@
+pytest==8.1.1
+requests==2.31.0
+pandas==2.1.4
+psycopg2-binary==2.9.9
+python-dotenv==1.0.1
+ruff==0.6.9
+dbt-core==1.7.14
+dbt-postgres==1.7.14
+protobuf>=4.25.3,<5

@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: dim_date
+    columns:
+      - name: date_day
+        tests: [unique, not_null]
+  - name: dim_carrier
+    columns:
+      - name: carrier_code
+        tests: [unique, not_null]
+  - name: dim_airport
+    columns:
+      - name: iata_code
+        tests: [unique, not_null]
