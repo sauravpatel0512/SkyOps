@@ -5,6 +5,7 @@ help:
 	@echo "  download          BTS 2024 months + Open-Meteo hub weather"
 	@echo "  download-bts      BTS monthly PREZIP only"
 	@echo "  download-weather  Open-Meteo daily weather for hubs"
+	@echo "  load              load weather + flights into Postgres"
 	@echo "  up                docker compose up -d --build"
 	@echo "  down              docker compose down"
 	@echo "  init-db           apply sql/*.sql into skyops-postgres"

@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from io import StringIO
 from pathlib import Path
 
 import pandas as pd
 
 from ingestion.db import warehouse_conn
+from ingestion.load_flights import _frame_to_copy_csv
 from ingestion.load_weather import upsert_airports
 
 FLIGHT_COLS = [
@@ -50,6 +50,28 @@ def load_ci_fixture() -> None:
     df = pd.read_csv(fixture_path(), parse_dates=["fl_date"])
     df["fl_date"] = df["fl_date"].dt.date
     df["source_file"] = "flights_sample.csv"
+    int_cols = ["year", "month", "crs_dep_time", "dep_time", "crs_arr_time", "arr_time"]
+    for col in int_cols:
+        df[col] = pd.to_numeric(df[col], errors="coerce").round().astype("Int64")
+    float_cols = [
+        "dep_delay",
+        "taxi_out",
+        "taxi_in",
+        "arr_delay",
+        "cancelled",
+        "diverted",
+        "crs_elapsed_time",
+        "actual_elapsed_time",
+        "air_time",
+        "distance",
+        "carrier_delay",
+        "weather_delay",
+        "nas_delay",
+        "security_delay",
+        "late_aircraft_delay",
+    ]
+    for col in float_cols:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
     df = df[FLIGHT_COLS]
 
     weather_rows = [
@@ -89,9 +111,7 @@ def load_ci_fixture() -> None:
         with conn.cursor() as cur:
             cur.execute("TRUNCATE raw.flights")
             cur.execute("TRUNCATE raw.weather_daily")
-            buf = StringIO()
-            df.to_csv(buf, index=False, header=False)
-            buf.seek(0)
+            buf = _frame_to_copy_csv(df, FLIGHT_COLS)
             cur.copy_expert(
                 f"COPY raw.flights ({', '.join(FLIGHT_COLS)}) FROM STDIN WITH (FORMAT csv, NULL '')",
                 buf,
