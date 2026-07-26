@@ -24,6 +24,7 @@ flowchart LR
 | **Ingest** | Monthly BTS PREZIP + hub weather API, idempotent loads |
 | **Model** | Staging → enriched flights → dims/facts → marts |
 | **Quality** | dbt tests on keys + relationships |
+| **Targets** | dbt profiles: `dev` (local) · `ci` (Actions) · `cloud` (Neon/RDS + SSL) |
 | **Serve** | Metabase on `analytics.mart_*` |
 
 ## Debugging notes (real failures)
@@ -56,6 +57,8 @@ make lint && make test
 ```
 
 **CI** runs ruff + fixture load + `dbt build` + pytest (no full-year download on runners).
+
+**dbt targets:** `dev` (local Docker/host) · `ci` (GitHub Actions) · `cloud` (managed Postgres with SSL — set `CLOUD_POSTGRES_*`, then `make dbt-cloud`). See [docs/RUNBOOK.md](docs/RUNBOOK.md).
 
 ## Outputs
 
