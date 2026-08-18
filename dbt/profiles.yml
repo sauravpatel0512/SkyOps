@@ -1,6 +1,7 @@
 skyops:
   target: dev
   outputs:
+    # Local Docker Compose / host-side dbt (no SSL by default).
     dev:
       type: postgres
       host: "{{ env_var('POSTGRES_HOST', 'localhost') }}"
@@ -10,6 +11,8 @@ skyops:
       dbname: "{{ env_var('POSTGRES_DB', 'skyops') }}"
       schema: analytics
       threads: 4
+      sslmode: "{{ env_var('POSTGRES_SSLMODE', 'disable') }}"
+    # GitHub Actions fixture warehouse (same shape as dev).
     ci:
       type: postgres
       host: "{{ env_var('POSTGRES_HOST', 'localhost') }}"
@@ -19,3 +22,16 @@ skyops:
       dbname: "{{ env_var('POSTGRES_DB', 'skyops') }}"
       schema: analytics
       threads: 4
+      sslmode: "{{ env_var('POSTGRES_SSLMODE', 'disable') }}"
+    # Managed Postgres (Neon / RDS / Cloud SQL). Requires CLOUD_POSTGRES_* env vars.
+    # Never commit real credentials. Smoke with fixture/sample data — not a full 7M reload by default.
+    cloud:
+      type: postgres
+      host: "{{ env_var('CLOUD_POSTGRES_HOST') }}"
+      port: "{{ env_var('CLOUD_POSTGRES_PORT', '5432') | as_number }}"
+      user: "{{ env_var('CLOUD_POSTGRES_USER') }}"
+      password: "{{ env_var('CLOUD_POSTGRES_PASSWORD') }}"
+      dbname: "{{ env_var('CLOUD_POSTGRES_DB', 'skyops') }}"
+      schema: analytics
+      threads: 4
+      sslmode: "{{ env_var('CLOUD_POSTGRES_SSLMODE', 'require') }}"

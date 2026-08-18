@@ -1,4 +1,4 @@
-.PHONY: help up down init-db download download-bts download-weather lint test ci-local open-dashboard psql logs
+.PHONY: help up down init-db download download-bts download-weather load lint test ci-local open-dashboard psql logs dbt-dev dbt-cloud
 
 help:
 	@echo "SkyOps targets:"
@@ -9,6 +9,8 @@ help:
 	@echo "  up                docker compose up -d --build"
 	@echo "  down              docker compose down"
 	@echo "  init-db           apply sql/*.sql into skyops-postgres"
+	@echo "  dbt-dev           dbt build --target dev (local Postgres)"
+	@echo "  dbt-cloud         dbt build --target cloud (Neon/RDS; needs CLOUD_POSTGRES_*)"
 	@echo "  lint              ruff check"
 	@echo "  test              pytest"
 	@echo "  ci-local          install deps + lint + test"
@@ -38,6 +40,20 @@ init-db:
 	docker exec -i skyops-postgres psql -U postgres -d skyops -f - < sql/init.sql
 	docker exec -i skyops-postgres psql -U postgres -d skyops -f - < sql/raw_schema.sql
 	docker exec -i skyops-postgres psql -U postgres -d skyops -f - < sql/analytics_schema.sql
+
+# Host-side dbt against local published Postgres (port 5433 by default).
+dbt-dev:
+	cd dbt && POSTGRES_HOST=$${POSTGRES_HOST:-localhost} POSTGRES_PORT=$${POSTGRES_PORT:-5433} POSTGRES_SSLMODE=$${POSTGRES_SSLMODE:-disable} \
+		dbt deps --profiles-dir . && \
+		dbt seed --profiles-dir . --target dev && \
+		dbt build --profiles-dir . --target dev
+
+# Managed Postgres (Neon / RDS). Export CLOUD_POSTGRES_* first — see .env.example.
+dbt-cloud:
+	@test -n "$${CLOUD_POSTGRES_HOST}" || (echo "Set CLOUD_POSTGRES_HOST (and user/password). See .env.example" >&2; exit 1)
+	cd dbt && dbt deps --profiles-dir . && \
+		dbt seed --profiles-dir . --target cloud && \
+		dbt build --profiles-dir . --target cloud
 
 lint:
 	ruff check ingestion airflow/dags airflow/plugins tests
