@@ -12,6 +12,17 @@ def test_raw_schema_defines_flights():
     assert "raw.airports" in sql
 
 
+def test_sources_yml_declares_loaded_at_freshness():
+    yml = (Path(__file__).resolve().parents[1] / "dbt" / "models" / "sources.yml").read_text(
+        encoding="utf-8"
+    )
+    assert "loaded_at_field: loaded_at" in yml
+    assert "warn_after" in yml
+    assert "error_after" in yml
+    assert "flights" in yml
+    assert "weather_daily" in yml
+
+
 def test_fixture_csv_exists():
     path = Path(__file__).resolve().parents[1] / "data" / "fixtures" / "flights_sample.csv"
     assert path.exists()

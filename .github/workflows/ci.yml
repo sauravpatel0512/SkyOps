@@ -61,7 +61,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: python -m ingestion.load_ci_fixture
 
-      - name: dbt deps, seed, build
+      - name: dbt deps, freshness, seed, build
         working-directory: dbt
         env:
           POSTGRES_HOST: localhost
@@ -71,6 +71,7 @@ jobs:
           POSTGRES_DB: skyops
         run: |
           dbt deps --profiles-dir .
+          dbt source freshness --target ci --profiles-dir .
           dbt seed --target ci --profiles-dir .
           dbt build --target ci --profiles-dir .
 

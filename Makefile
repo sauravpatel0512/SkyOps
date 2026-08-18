@@ -1,4 +1,4 @@
-.PHONY: help up down init-db download download-bts download-weather load lint test ci-local open-dashboard psql logs dbt-dev dbt-cloud
+.PHONY: help up down init-db download download-bts download-weather load lint test ci-local open-dashboard psql logs dbt-dev dbt-cloud dbt-freshness
 
 help:
 	@echo "SkyOps targets:"
@@ -11,6 +11,7 @@ help:
 	@echo "  init-db           apply sql/*.sql into skyops-postgres"
 	@echo "  dbt-dev           dbt build --target dev (local Postgres)"
 	@echo "  dbt-cloud         dbt build --target cloud (Neon/RDS; needs CLOUD_POSTGRES_*)"
+	@echo "  dbt-freshness     dbt source freshness on raw.flights / raw.weather_daily"
 	@echo "  lint              ruff check"
 	@echo "  test              pytest"
 	@echo "  ci-local          install deps + lint + test"
@@ -54,6 +55,11 @@ dbt-cloud:
 	cd dbt && dbt deps --profiles-dir . && \
 		dbt seed --profiles-dir . --target cloud && \
 		dbt build --profiles-dir . --target cloud
+
+# Fails if raw.flights / raw.weather_daily were not ingested in the last 7 days.
+dbt-freshness:
+	cd dbt && POSTGRES_HOST=$${POSTGRES_HOST:-localhost} POSTGRES_PORT=$${POSTGRES_PORT:-5433} POSTGRES_SSLMODE=$${POSTGRES_SSLMODE:-disable} \
+		dbt source freshness --profiles-dir . --target $${DBT_TARGET:-dev}
 
 lint:
 	ruff check ingestion airflow/dags airflow/plugins tests
