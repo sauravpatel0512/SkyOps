@@ -23,7 +23,7 @@ flowchart LR
 |-------|----------------|
 | **Ingest** | Monthly BTS PREZIP + hub weather API, idempotent loads |
 | **Model** | Staging → enriched flights → dims/facts → marts |
-| **Quality** | dbt tests on keys + relationships |
+| **Quality** | dbt tests on keys + relationships; source freshness on `loaded_at` |
 | **Targets** | dbt profiles: `dev` (local) · `ci` (Actions) · `cloud` (Neon/RDS + SSL) |
 | **Serve** | Metabase on `analytics.mart_*` |
 
@@ -56,7 +56,7 @@ make help
 make lint && make test
 ```
 
-**CI** runs ruff + fixture load + `dbt build` + pytest (no full-year download on runners).
+**CI** runs ruff + fixture load + `dbt source freshness` + `dbt build` + pytest (no full-year download on runners). A warehouse not re-ingested in 7 days is expected to fail freshness (`make dbt-freshness`).
 
 **dbt targets:** `dev` (local Docker/host) · `ci` (GitHub Actions) · `cloud` (managed Postgres with SSL — set `CLOUD_POSTGRES_*`, then `make dbt-cloud`). See [docs/RUNBOOK.md](docs/RUNBOOK.md).
 

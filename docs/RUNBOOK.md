@@ -39,6 +39,14 @@ dbt build --profiles-dir . --target dev
 
 Or: `make dbt-dev` from the repo root.
 
+Check that ingest actually landed recently (`loaded_at`, not BTS `fl_date`):
+
+```bash
+make dbt-freshness
+```
+
+A warehouse that has not been re-ingested in 7 days is expected to fail. CI fixture loads with `now()` so freshness passes on GitHub Actions.
+
 ## Cloud Postgres target (Neon / RDS / Cloud SQL)
 
 Same dbt project, separate profile output — proves env separation without changing models.

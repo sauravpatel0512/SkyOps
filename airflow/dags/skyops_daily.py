@@ -78,6 +78,7 @@ with DAG(
         bash_command=(
             "cd /opt/airflow/dbt && "
             "dbt deps --profiles-dir . && "
+            "dbt source freshness --profiles-dir . && "
             "dbt seed --profiles-dir . && "
             "dbt build --profiles-dir ."
         ),
