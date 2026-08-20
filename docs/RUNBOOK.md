@@ -84,6 +84,21 @@ Same dbt project, separate profile output — proves env separation without chan
 
 `ingestion.db.cloud_warehouse_dsn()` builds the same SSL DSN shape for Python loaders when `CLOUD_POSTGRES_*` is set.
 
+## Load audit (`raw.ingestion_runs`)
+
+After ingest, confirm what landed:
+
+```bash
+make psql
+# then:
+SELECT source_name, finished_at, status, row_count, notes
+FROM raw.ingestion_runs
+ORDER BY finished_at DESC
+LIMIT 10;
+
+SELECT * FROM staging.stg_ingestion_runs ORDER BY finished_at DESC;
+```
+
 ## CI path
 
 GitHub Actions loads `data/fixtures/flights_sample.csv` instead of full BTS.
