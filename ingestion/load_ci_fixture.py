@@ -111,6 +111,7 @@ def load_ci_fixture() -> None:
         with conn.cursor() as cur:
             cur.execute("TRUNCATE raw.flights")
             cur.execute("TRUNCATE raw.weather_daily")
+            cur.execute("TRUNCATE raw.ingestion_runs")
             buf = _frame_to_copy_csv(df, FLIGHT_COLS)
             cur.copy_expert(
                 f"COPY raw.flights ({', '.join(FLIGHT_COLS)}) FROM STDIN WITH (FORMAT csv, NULL '')",
@@ -124,7 +125,23 @@ def load_ci_fixture() -> None:
                 """,
                 weather_rows,
             )
-    print(f"CI fixture loaded: {len(df)} flights, {len(weather_rows)} weather rows")
+            cur.execute(
+                """
+                INSERT INTO raw.ingestion_runs (source_name, finished_at, status, row_count, notes)
+                VALUES ('bts_flights', now(), 'ok', %s, 'ci-fixture')
+                """,
+                (len(df),),
+            )
+            cur.execute(
+                """
+                INSERT INTO raw.ingestion_runs (source_name, finished_at, status, row_count, notes)
+                VALUES ('weather_daily', now(), 'ok', %s, 'ci-fixture')
+                """,
+                (len(weather_rows),),
+            )
+    print(
+        f"CI fixture loaded: {len(df)} flights, {len(weather_rows)} weather rows, 2 ingestion_runs"
+    )
 
 
 if __name__ == "__main__":

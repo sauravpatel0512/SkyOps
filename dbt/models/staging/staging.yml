@@ -21,3 +21,14 @@ models:
     columns:
       - name: iata_code
         tests: [unique, not_null]
+  - name: stg_ingestion_runs
+    columns:
+      - name: source_name
+        tests: [not_null]
+      - name: status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['ok', 'error']
+      - name: row_count
+        tests: [not_null]

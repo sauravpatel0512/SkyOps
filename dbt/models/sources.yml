@@ -17,3 +17,5 @@ sources:
           error_after: {count: 7, period: day}
       - name: airports
         # Static hub lookup — no loaded_at column; skip freshness.
+      - name: ingestion_runs
+        # Load audit metadata written by Python loaders — no freshness SLA.
