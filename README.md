@@ -23,7 +23,7 @@ flowchart LR
 |-------|----------------|
 | **Ingest** | Monthly BTS PREZIP + hub weather API, idempotent loads |
 | **Model** | Staging → enriched flights → dims/facts → marts |
-| **Quality** | dbt tests on keys + relationships; source freshness on `loaded_at` |
+| **Quality** | dbt tests on keys + relationships; source freshness on `loaded_at`; staging over `raw.ingestion_runs` |
 | **Targets** | dbt profiles: `dev` (local) · `ci` (Actions) · `cloud` (Neon/RDS + SSL) |
 | **Serve** | Metabase on `analytics.mart_*` |
 
